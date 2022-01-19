@@ -28,7 +28,7 @@ Add to your dependencies in `mix.exs`.
 
 ```elixir
 def deps do
-  [{:dwolla, "~> 1.0"}]
+  [{:dwolla, "~> 1.0", hex: :exdwolla}]
 end
 ```
 
