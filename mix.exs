@@ -43,6 +43,7 @@ defmodule Dwolla.Mixfile do
   defp package do
     [
       name: :exdwolla,
+      organization: "axlepayments",
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       licenses: ["MIT"],
       maintainers: ["Steven Hornung"],
