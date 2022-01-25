@@ -1,3 +1,3 @@
-Application.ensure_all_started(:bypass)
+Mox.defmock(Dwolla.Mock, for: HTTPoison.Base)
 
 ExUnit.start()

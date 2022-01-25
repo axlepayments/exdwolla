@@ -1,26 +1,21 @@
 defmodule Dwolla.WebhookTest do
-
   use ExUnit.Case
 
   import Dwolla.Factory
+  import Dwolla.TestUtils
+  import Mox
 
   alias Dwolla.Webhook
-  alias Plug.Conn
 
-  setup do
-    bypass = Bypass.open()
-    Application.put_env(:dwolla, :root_uri, "http://localhost:#{bypass.port}/")
-    {:ok, bypass: bypass}
-  end
+  setup :verify_on_exit!
 
   describe "webhook" do
-
-    test "get/2 requests GET and returns Dwolla.Webhook", %{bypass: bypass} do
-      body = http_response_body(:webhook, :get)
-      Bypass.expect bypass, fn conn ->
-        assert "GET" == conn.method
-        Conn.resp(conn, 200, body)
-      end
+    test "get/2 requests GET and returns Dwolla.Webhook" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :get, _, _, _, _ ->
+        body = http_response_body(:webhook, :get)
+        {:ok, httpoison_response(body)}
+      end)
 
       assert {:ok, resp} = Webhook.get("token", "id")
       assert resp.__struct__ == Dwolla.Webhook
@@ -45,25 +40,23 @@ defmodule Dwolla.WebhookTest do
       refute attempt.response.body == nil
     end
 
-    test "retry/2 requests POST and returns a new id", %{bypass: bypass} do
-      Bypass.expect bypass, fn conn ->
-        assert "POST" == conn.method
-        {k, v} = http_response_header(:webhook)
-        conn
-        |> Conn.put_resp_header(k, v)
-        |> Conn.resp(201, "")
-      end
+    test "retry/2 requests POST and returns a new id" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :post, _, _, _, _ ->
+        header = http_response_header(:webhook)
+        {:ok, httpoison_response("", 201, [header])}
+      end)
 
       assert {:ok, resp} = Webhook.retry("token", "id")
       assert resp.id == "5aa27a0f-cf99-418d-a3ee-67c0ff99a494"
     end
 
-    test "list_retries/2 requests GET and returns list of Dwolla.Retry", %{bypass: bypass} do
-      body = http_response_body(:webhook, :retries)
-      Bypass.expect bypass, fn conn ->
-        assert "GET" == conn.method
-        Conn.resp(conn, 200, body)
-      end
+    test "list_retries/2 requests GET and returns list of Dwolla.Retry" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :get, _, _, _, _ ->
+        body = http_response_body(:webhook, :retries)
+        {:ok, httpoison_response(body)}
+      end)
 
       assert {:ok, resp} = Webhook.list_retries("token", "id")
       assert Enum.count(resp) == 1
@@ -73,5 +66,4 @@ defmodule Dwolla.WebhookTest do
       refute retry.timestamp == nil
     end
   end
-
 end

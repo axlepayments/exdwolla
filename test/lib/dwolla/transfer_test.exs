@@ -1,28 +1,21 @@
 defmodule Dwolla.TransferTest do
-
   use ExUnit.Case
 
   import Dwolla.Factory
+  import Dwolla.TestUtils
+  import Mox
 
   alias Dwolla.Transfer
-  alias Plug.Conn
 
-  setup do
-    bypass = Bypass.open()
-    Application.put_env(:dwolla, :root_uri, "http://localhost:#{bypass.port}/")
-    {:ok, bypass: bypass}
-  end
+  setup :verify_on_exit!
 
   describe "transfer" do
-
-    test "initiate/2 requests POST and returns a new id", %{bypass: bypass} do
-      Bypass.expect bypass, fn conn ->
-        assert "POST" == conn.method
-        {k, v} = http_response_header(:transfer)
-        conn
-        |> Conn.put_resp_header(k, v)
-        |> Conn.resp(201, "")
-      end
+    test "initiate/2 requests POST and returns a new id" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :post, _, _, _, _ ->
+        header = http_response_header(:transfer)
+        {:ok, httpoison_response("", 201, [header])}
+      end)
 
       params = %{
         _links: %{
@@ -43,12 +36,12 @@ defmodule Dwolla.TransferTest do
       assert resp.id == "494b6269-d909-e711-80ee-0aa34a9b2388"
     end
 
-    test "get/2 requests GET and returns Dwolla.Transfer", %{bypass: bypass} do
-      body = http_response_body(:transfer, :get)
-      Bypass.expect bypass, fn conn ->
-        assert "GET" == conn.method
-        Conn.resp(conn, 200, body)
-      end
+    test "get/2 requests GET and returns Dwolla.Transfer" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :get, _, _, _, _ ->
+        body = http_response_body(:transfer, :get)
+        {:ok, httpoison_response(body)}
+      end)
 
       assert {:ok, resp} = Transfer.get("token", "id")
       assert resp.__struct__ == Dwolla.Transfer
@@ -66,12 +59,12 @@ defmodule Dwolla.TransferTest do
       assert resp.can_cancel == true
     end
 
-    test "get_transfer_failure_reason/2 requests GET and returns Dwolla.Transfer.Failure", %{bypass: bypass} do
-      body = http_response_body(:transfer, :failure)
-      Bypass.expect bypass, fn conn ->
-        assert "GET" == conn.method
-        Conn.resp(conn, 200, body)
-      end
+    test "get_transfer_failure_reason/2 requests GET and returns Dwolla.Transfer.Failure" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :get, _, _, _, _ ->
+        body = http_response_body(:transfer, :failure)
+        {:ok, httpoison_response(body)}
+      end)
 
       assert {:ok, resp} = Transfer.get_transfer_failure_reason("token", "id")
       assert resp.__struct__ == Dwolla.Transfer.Failure
@@ -79,12 +72,12 @@ defmodule Dwolla.TransferTest do
       refute resp.description == nil
     end
 
-    test "cancel/2 requests POST and returns Dwolla.Transfer", %{bypass: bypass} do
-      body = http_response_body(:transfer, :get)
-      Bypass.expect bypass, fn conn ->
-        assert "POST" == conn.method
-        Conn.resp(conn, 200, body)
-      end
+    test "cancel/2 requests POST and returns Dwolla.Transfer" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :post, _, _, _, _ ->
+        body = http_response_body(:transfer, :get)
+        {:ok, httpoison_response(body)}
+      end)
 
       assert {:ok, resp} = Transfer.cancel("token", "id")
       assert resp.__struct__ == Dwolla.Transfer

@@ -1,8 +1,6 @@
 # Dwolla
 
-Elixir Library for Dwolla
-
-This package was originally forked then extended from the `dwolla_elixir` package (https://hex.pm/packages/dwolla_elixir)
+An Elixir Library for Dwolla
 
 Supported endpoints:
 
@@ -52,7 +50,7 @@ can override them in your configuration.
 
 ## Tests and Style
 
-This library uses [bypass](https://github.com/PSPDFKit-labs/bypass) to simulate HTTP responses from Dwolla.
+This library uses [mox](https://github.com/dashbitco/mox) to simulate HTTP responses from Dwolla.
 
 Run tests using `mix test`.
 
@@ -60,5 +58,20 @@ Before making pull requests, run the coverage and style checks.
 
 ```elixir
 mix coveralls
+mix format
 mix credo
 ```
+
+## Credit
+
+This library was originally forked then extended from the `dwolla_elixir` package (https://hex.pm/packages/dwolla_elixir).
+
+The decision to create a new, separate Elixir library for Dwolla, rather than contribute back to the original library was driven primarily by our own internal use-case for this library. 
+
+The biggest reason for creating a new libary was our need for replacing the testing library Bypass with Mox. We use Mox in the rest of our applications and did not want to pull in Bypass as well, in order to fully simulate HTTP responses from Dwolla. Instead, we replaced Bypass in this library with Mox in order to allow for better and more complete testing against the Dwolla library from within our other application.
+
+Along with the above, we added several new endpoints and modified some existing endpoints to better suite our needs for this library. 
+
+Because of these, we decided it was better to treat this as a brand new Elixir library. 
+
+A large credit goes to `wfgilman` and the other contributors on the original `dwolla_elixir` library.

@@ -17,7 +17,7 @@ defmodule Dwolla.Utils do
   end
 
   defp pair({key, value}) do
-    param_name = to_string(key) |> URI.encode_www_form()
+    param_name = key |> to_string() |> URI.encode_www_form()
 
     param_value =
       cond do
@@ -25,10 +25,10 @@ defmodule Dwolla.Utils do
           Poison.encode!(value)
 
         is_list(value) ->
-          Enum.map_join(value, "|", fn x -> x end) |> URI.encode_www_form()
+          value |> Enum.map_join("|", fn x -> x end) |> URI.encode_www_form()
 
         true ->
-          to_string(value) |> URI.encode_www_form()
+          value |> to_string() |> URI.encode_www_form()
       end
 
     "#{param_name}=#{param_value}"
@@ -39,7 +39,8 @@ defmodule Dwolla.Utils do
   """
   @spec validate_params(map, list) :: :ok | :error
   def validate_params(params, fields) do
-    Map.keys(params)
+    params
+    |> Map.keys()
     |> Enum.map(&to_string/1)
     |> do_validate_params(fields)
   end
@@ -141,7 +142,10 @@ defmodule Dwolla.Utils do
     Enum.map(beneficial_owners, &map_body(&1, schema))
   end
 
-  defp map_body(%{"_embedded" => %{"business-classifications" => business_classifications}}, schema) do
+  defp map_body(
+         %{"_embedded" => %{"business-classifications" => business_classifications}},
+         schema
+       ) do
     Enum.map(business_classifications, &map_body(&1, schema))
   end
 
@@ -312,14 +316,18 @@ defmodule Dwolla.Utils do
     |> Poison.Decode.transform(%{as: %Dwolla.Document{}})
   end
 
-  defp get_customer_verify_beneficial_ownership_from_body(%{"_links" => %{"verify-beneficial-ownership" => %{"href" => _}}}),
-    do: true
+  defp get_customer_verify_beneficial_ownership_from_body(%{
+         "_links" => %{"verify-beneficial-ownership" => %{"href" => _}}
+       }),
+       do: true
 
   defp get_customer_verify_beneficial_ownership_from_body(_),
     do: false
 
-  defp get_customer_certify_beneficial_ownership_from_body(%{"_links" => %{"certify-beneficial-ownership" => %{"href" => _}}}),
-    do: true
+  defp get_customer_certify_beneficial_ownership_from_body(%{
+         "_links" => %{"certify-beneficial-ownership" => %{"href" => _}}
+       }),
+       do: true
 
   defp get_customer_certify_beneficial_ownership_from_body(_),
     do: false
@@ -354,9 +362,7 @@ defmodule Dwolla.Utils do
     |> List.last()
   end
 
-  defp get_resource_id_from_body(
-         %{"_links" => %{"self" => %{"href" => url}}} = _body
-       ) do
+  defp get_resource_id_from_body(%{"_links" => %{"self" => %{"href" => url}}} = _body) do
     get_resource_id_from_url(url)
   end
 

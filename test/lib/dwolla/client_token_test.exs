@@ -1,25 +1,21 @@
 defmodule Dwolla.ClientTokenTest do
-
   use ExUnit.Case
 
   import Dwolla.Factory
+  import Dwolla.TestUtils
+  import Mox
 
   alias Dwolla.ClientToken
-  alias Plug.Conn
 
-  setup do
-    bypass = Bypass.open()
-    Application.put_env(:dwolla, :root_uri, "http://localhost:#{bypass.port}/")
-    {:ok, bypass: bypass}
-  end
+  setup :verify_on_exit!
 
   describe "client-tokens" do
-    test "create/2 requests POST and returns Dwolla.ClientToken", %{bypass: bypass} do
-      body = http_response_body(:client_token, :create)
-      Bypass.expect bypass, fn conn ->
-        assert "POST" == conn.method
-        Conn.resp(conn, 200, body)
-      end
+    test "create/2 requests POST and returns Dwolla.ClientToken" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :post, _, _, _, _ ->
+        body = http_response_body(:client_token, :create)
+        {:ok, httpoison_response(body)}
+      end)
 
       params = %{
         _links: %{

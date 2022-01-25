@@ -1,13 +1,11 @@
 defmodule Dwolla do
   @moduledoc """
-  An HTTP Client for Dwolla.
+  An API Client for Dwolla.
 
   [Dwolla API Docs](https://docsv2.dwolla.com)
   """
 
-  use HTTPoison.Base
-
-  alias Dwolla.Utils
+  alias Dwolla.{HttpClient, Utils}
 
   @token_endpoint "token"
 
@@ -27,17 +25,6 @@ defmodule Dwolla do
                  """
   end
 
-  defmodule MissingRootUriError do
-    defexception message: """
-                 The root_uri is required to specify the Dwolla environment to which you are
-                 making calls, i.e. development or production. Please configure
-                 root_uri in your config.exs file.
-
-                 config :dwolla, root_uri: "https://api-sandbox.dwolla.com/" (development)
-                 config :dwolla, root_uri: "https://api.dwolla.com/" (production)
-                 """
-  end
-
   @doc """
   Gets credentials from configuration.
   """
@@ -51,7 +38,7 @@ defmodule Dwolla do
   """
   @spec get_root_uri() :: String.t() | no_return
   def get_root_uri do
-    require_root_uri()
+    HttpClient.require_root_uri()
   end
 
   @doc """
@@ -63,7 +50,8 @@ defmodule Dwolla do
     rb = body |> Utils.to_camel_case() |> maybe_encode()
     rh = token |> get_request_headers() |> Map.merge(headers) |> Map.to_list()
     options = httpoison_request_options() ++ options
-    request(method, endpoint, rb, rh, options)
+
+    http_client().request(method, endpoint, rb, rh, options)
   end
 
   defp maybe_encode({:multipart, _} = body), do: body
@@ -78,20 +66,8 @@ defmodule Dwolla do
     rb = Utils.encode_params(params, cred)
     rh = cred |> get_request_headers() |> Map.to_list()
     options = httpoison_request_options() ++ options
-    request(:post, @token_endpoint, rb, rh, options)
-  end
 
-  def process_url(endpoint) do
-    require_root_uri() <> endpoint
-  end
-
-  def process_response_body(""), do: ""
-
-  def process_response_body(body) do
-    case Poison.decode(body) do
-      {:ok, parsed_body} -> parsed_body
-      {:error, _} -> {:invalid, body}
-    end
+    http_client().request(:post, @token_endpoint, rb, rh, options)
   end
 
   defp get_request_headers(%{client_id: client_id, client_secret: client_secret}) do
@@ -122,13 +98,6 @@ defmodule Dwolla do
     end
   end
 
-  defp require_root_uri do
-    case Application.get_env(:dwolla, :root_uri) || :not_found do
-      :not_found -> raise MissingRootUriError
-      value -> value
-    end
-  end
-
   defp httpoison_request_options do
     Application.get_env(:dwolla, :httpoison_options, [])
   end
@@ -140,4 +109,6 @@ defmodule Dwolla do
   defp get_client_secret do
     Application.get_env(:dwolla, :client_secret) || :not_found
   end
+
+  defp http_client, do: Application.get_env(:dwolla, :http_client) || HttpClient
 end

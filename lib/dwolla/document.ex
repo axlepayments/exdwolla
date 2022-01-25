@@ -7,17 +7,19 @@ defmodule Dwolla.Document do
 
   defstruct id: nil, type: nil, status: nil, created: nil, failure_reason: nil
 
-  @type t :: %__MODULE__{id: String.t,
-                         type: String.t,   # passport | license | idCard | other
-                         status: String.t, # pending | reviewed
-                         created: String.t,
-                         failure_reason: String.t
-
-                   }
-  @type token :: String.t
-  @type id :: String.t
-  @type error :: HTTPoison.Error.t | Dwolla.Errors.t | tuple
-  @type location :: %{id: String.t}
+  @type t :: %__MODULE__{
+          id: String.t(),
+          # passport | license | idCard | other
+          type: String.t(),
+          # pending | reviewed
+          status: String.t(),
+          created: String.t(),
+          failure_reason: String.t()
+        }
+  @type token :: String.t()
+  @type id :: String.t()
+  @type error :: HTTPoison.Error.t() | Dwolla.Errors.t() | tuple
+  @type location :: %{id: String.t()}
 
   @endpoint "documents"
 
@@ -35,13 +37,17 @@ defmodule Dwolla.Document do
   - `idCard`
   - `other`
   """
-  @spec create(token, id, String.t, String.t) :: {:ok, location} | {:error, error}
+  @spec create(token, id, String.t(), String.t()) :: {:ok, location} | {:error, error}
   def create(token, customer_id, document_type, file) do
     endpoint = "customers/#{customer_id}/#{@endpoint}"
-    form = {:multipart, [
-      {:file, file},
-      {"documentType", document_type}
-    ]}
+
+    form =
+      {:multipart,
+       [
+         {:file, file},
+         {"documentType", document_type}
+       ]}
+
     Dwolla.make_request_with_token(:post, endpoint, token, form, @headers)
     |> Utils.handle_resp(:document)
   end
@@ -49,9 +55,10 @@ defmodule Dwolla.Document do
   @doc """
   List a customer's documents.
   """
-  @spec list(token, id) :: {:ok, [Dwolla.Document.t]} | {:error, error}
+  @spec list(token, id) :: {:ok, [Dwolla.Document.t()]} | {:error, error}
   def list(token, customer_id) do
     endpoint = "customers/#{customer_id}/#{@endpoint}"
+
     Dwolla.make_request_with_token(:get, endpoint, token)
     |> Utils.handle_resp(:document)
   end
@@ -59,9 +66,10 @@ defmodule Dwolla.Document do
   @doc """
   Get a document.
   """
-  @spec get(token, id) :: {:ok, Dwolla.Document.t} | {:error, error}
+  @spec get(token, id) :: {:ok, Dwolla.Document.t()} | {:error, error}
   def get(token, id) do
     endpoint = @endpoint <> "/#{id}"
+
     Dwolla.make_request_with_token(:get, endpoint, token)
     |> Utils.handle_resp(:document)
   end

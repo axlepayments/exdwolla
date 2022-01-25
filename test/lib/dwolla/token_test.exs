@@ -2,20 +2,17 @@ defmodule Dwolla.TokenTest do
   use ExUnit.Case
 
   import Dwolla.Factory
+  import Dwolla.TestUtils
+  import Mox
 
-  setup do
-    bypass = Bypass.open()
-    Application.put_env(:dwolla, :root_uri, "http://localhost:#{bypass.port}/")
-    {:ok, bypass: bypass}
-  end
+  setup :verify_on_exit!
 
   describe "token" do
-    test "get/1 requests POST and returns Dwolla.Token", %{bypass: bypass} do
-      body = http_response_body(:token)
-
-      Bypass.expect(bypass, fn conn ->
-        assert "POST" == conn.method
-        Plug.Conn.resp(conn, 200, Poison.encode!(body))
+    test "get/1 requests POST and returns Dwolla.Token" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :post, _, _, _, _ ->
+        body = http_response_body(:token)
+        {:ok, httpoison_response(body)}
       end)
 
       assert {:ok, resp} = Dwolla.Token.get()
@@ -25,8 +22,11 @@ defmodule Dwolla.TokenTest do
       refute resp.token_type == nil
     end
 
-    test "get/1 requests POST and returns HTTPoison.Error", %{bypass: bypass} do
-      Bypass.down(bypass)
+    test "get/1 requests POST and returns HTTPoison.Error" do
+      Dwolla.Mock
+      |> expect(:request, 1, fn :post, _, _, _, _ ->
+        {:error, httpoison_error(:timeout)}
+      end)
 
       assert {:error, %HTTPoison.Error{}} = Dwolla.Token.get()
     end

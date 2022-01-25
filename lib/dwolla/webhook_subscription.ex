@@ -6,17 +6,13 @@ defmodule Dwolla.WebhookSubscription do
 
   defstruct id: nil, created: nil, url: nil, paused: false
 
-  @type t :: %__MODULE__{id: String.t,
-                         created: String.t,
-                         url: String.t,
-                         paused: boolean
-                        }
+  @type t :: %__MODULE__{id: String.t(), created: String.t(), url: String.t(), paused: boolean}
 
-  @type token :: String.t
-  @type id :: String.t
+  @type token :: String.t()
+  @type id :: String.t()
   @type params :: %{required(atom) => any}
-  @type error :: HTTPoison.Error.t | Dwolla.Errors.t | tuple
-  @type location :: %{id: String.t}
+  @type error :: HTTPoison.Error.t() | Dwolla.Errors.t() | tuple
+  @type location :: %{id: String.t()}
 
   @endpoint "webhook-subscriptions"
 
@@ -34,6 +30,7 @@ defmodule Dwolla.WebhookSubscription do
   @spec create(token, map) :: {:ok, location} | {:error, error}
   def create(token, params) do
     headers = Utils.idempotency_header(params)
+
     Dwolla.make_request_with_token(:post, @endpoint, token, params, headers)
     |> Utils.handle_resp(:webhook_subscription)
   end
@@ -42,9 +39,10 @@ defmodule Dwolla.WebhookSubscription do
   Gets a webhook subscription by id.
   """
   @spec get(token, id) ::
-    {:ok, Dwolla.WebhookSubscription.t} | {:error, error}
+          {:ok, Dwolla.WebhookSubscription.t()} | {:error, error}
   def get(token, id) do
     endpoint = @endpoint <> "/#{id}"
+
     Dwolla.make_request_with_token(:get, endpoint, token)
     |> Utils.handle_resp(:webhook_subscription)
   end
@@ -53,7 +51,7 @@ defmodule Dwolla.WebhookSubscription do
   Pauses a webhook subscription.
   """
   @spec pause(token, id) ::
-    {:ok, Dwolla.WebhookSubscription.t} | {:error, error}
+          {:ok, Dwolla.WebhookSubscription.t()} | {:error, error}
   def pause(token, id) do
     update(token, id, %{paused: true})
   end
@@ -62,13 +60,14 @@ defmodule Dwolla.WebhookSubscription do
   Resume a webhook subscription.
   """
   @spec resume(token, id) ::
-    {:ok, Dwolla.WebhookSubscription.t} | {:error, error}
+          {:ok, Dwolla.WebhookSubscription.t()} | {:error, error}
   def resume(token, id) do
     update(token, id, %{paused: false})
   end
 
   defp update(token, id, params) do
     endpoint = @endpoint <> "/#{id}"
+
     Dwolla.make_request_with_token(:post, endpoint, token, params)
     |> Utils.handle_resp(:webhook_subscription)
   end
@@ -77,7 +76,7 @@ defmodule Dwolla.WebhookSubscription do
   Lists webhook subscriptions.
   """
   @spec list(token) ::
-    {:ok, [Dwolla.WebhookSubscription.t]} | {:error, error}
+          {:ok, [Dwolla.WebhookSubscription.t()]} | {:error, error}
   def list(token) do
     Dwolla.make_request_with_token(:get, @endpoint, token)
     |> Utils.handle_resp(:webhook_subscription)
@@ -87,9 +86,10 @@ defmodule Dwolla.WebhookSubscription do
   Deletes a webhook subscription.
   """
   @spec delete(token, id) ::
-    {:ok, Dwolla.WebhookSubscription.t} | {:error, error}
+          {:ok, Dwolla.WebhookSubscription.t()} | {:error, error}
   def delete(token, id) do
     endpoint = @endpoint <> "/#{id}"
+
     Dwolla.make_request_with_token(:delete, endpoint, token)
     |> Utils.handle_resp(:webhook_subscription)
   end
@@ -105,15 +105,18 @@ defmodule Dwolla.WebhookSubscription do
   }
   ```
   """
-  @spec webhooks(token, id, params | nil) :: {:ok, [Dwolla.Webhook.t]} | {:error, error}
+  @spec webhooks(token, id, params | nil) :: {:ok, [Dwolla.Webhook.t()]} | {:error, error}
   def webhooks(token, id, params \\ %{}) do
     endpoint =
       case Map.keys(params) do
-        [] -> @endpoint <> "/#{id}/webhooks"
-        _  ->
+        [] ->
+          @endpoint <> "/#{id}/webhooks"
+
+        _ ->
           encoded_params = params |> Utils.to_camel_case() |> Utils.encode_params()
           @endpoint <> "/#{id}/webhooks?" <> encoded_params
       end
+
     Dwolla.make_request_with_token(:get, endpoint, token)
     |> Utils.handle_resp(:webhook)
   end
