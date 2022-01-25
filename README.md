@@ -50,11 +50,11 @@ can override them in your configuration.
 
 ## Tests and Style
 
-This library uses [mox](https://github.com/dashbitco/mox) to simulate HTTP responses from Dwolla.
+This library uses [Mox](https://github.com/dashbitco/mox) to simulate HTTP responses from Dwolla.
 
 Run tests using `mix test`.
 
-Before making pull requests, run the coverage and style checks.
+Before making pull requests, run the coverage, formatting and style checks.
 
 ```elixir
 mix coveralls
