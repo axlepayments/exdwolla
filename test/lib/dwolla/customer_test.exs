@@ -229,7 +229,7 @@ defmodule Dwolla.CustomerTest do
         Conn.resp(conn, 200, body)
       end
 
-      assert {:ok, %{data: transfers, total: 0}} = Customer.search_transfers("token", "id")
+      assert {:ok, %{transfers: transfers, total: 0}} = Customer.search_transfers("token", "id")
       assert Enum.empty?(transfers)
     end
 

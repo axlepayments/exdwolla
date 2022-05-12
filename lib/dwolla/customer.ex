@@ -222,7 +222,7 @@ defmodule Dwolla.Customer do
   %{start_date: "2017-04-01", end_date: "2017-04-30", status: "pending"}
   ```
   """
-  @spec search_transfers(token, id, params) :: {:ok, %{data: [Dwolla.Transfer.t], total: integer()}} | {:error, error}
+  @spec search_transfers(token, id, params) :: {:ok, %{transfers: [Dwolla.Transfer.t], total: integer()}} | {:error, error}
   def search_transfers(token, id, params \\ %{}) do
     endpoint =
       case Map.keys(params) do

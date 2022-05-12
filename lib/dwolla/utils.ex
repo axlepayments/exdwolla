@@ -155,7 +155,7 @@ defmodule Dwolla.Utils do
 
   defp map_body(%{"_embedded" => %{"transfers" => transfers}, "total" => total}, schema) do
     transfers = Enum.map(transfers, &map_body(&1, schema))
-    %{data: transfers, total: total}
+    %{transfers: transfers, total: total}
   end
 
   defp map_body(%{"_embedded" => %{"webhook-subscriptions" => webhook_subs}}, schema) do
