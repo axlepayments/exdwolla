@@ -219,8 +219,8 @@ defmodule Dwolla.CustomerTest do
         Conn.resp(conn, 200, body)
       end
 
-      assert {:ok, resp} = Customer.search_transfers("token", "id", %{end_date: end_date})
-      assert Enum.empty?(resp)
+      assert {:ok, %{transfers: transfers, total: 0}} = Customer.search_transfers("token", "id", %{end_date: end_date})
+      assert Enum.empty?(transfers)
     end
 
     test "search_transfers/2 returns list when params are omitted", %{bypass: bypass} do
@@ -229,8 +229,8 @@ defmodule Dwolla.CustomerTest do
         Conn.resp(conn, 200, body)
       end
 
-      assert {:ok, resp} = Customer.search_transfers("token", "id")
-      assert Enum.empty?(resp)
+      assert {:ok, %{transfers: transfers, total: 0}} = Customer.search_transfers("token", "id")
+      assert Enum.empty?(transfers)
     end
 
     test "create_beneficial_owner/3 requests POST and returns id", %{bypass: bypass} do
