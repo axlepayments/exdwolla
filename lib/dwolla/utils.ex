@@ -375,10 +375,10 @@ defmodule Dwolla.Utils do
   end
 
   defp get_resource_from_headers(headers) do
-    headers |> Enum.find(fn {k, _} -> k == "Location" end)
+    headers |> Enum.find(fn {k, _} -> String.downcase(k) == "location" end)
   end
 
-  defp extract_id_from_resource({"Location", resource}) do
+  defp extract_id_from_resource({"location", resource}) do
     id = get_resource_id_from_url(resource)
     %{id: id}
   end

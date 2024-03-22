@@ -92,21 +92,21 @@ defmodule Dwolla.Factory do
   end
 
   def http_response_header(:beneficial_owner) do
-    {"Location", "https://api-sandbox.dwolla.com/beneficial-owners/f73b92a2-71d7-4449-85db-a419dbc2a6d3"}
+    {"location", "https://api-sandbox.dwolla.com/beneficial-owners/f73b92a2-71d7-4449-85db-a419dbc2a6d3"}
   end
   def http_response_header(:customer) do
-    {"Location", "https://api-sandbox.dwolla.com/customers/b2cf497a-b315-497e-95b7-d1238288f8cb"}
+    {"location", "https://api-sandbox.dwolla.com/customers/b2cf497a-b315-497e-95b7-d1238288f8cb"}
   end
   def http_response_header(:funding_source) do
-    {"Location", "https://api-sandbox.dwolla.com/funding-sources/e8b4d511-805d-4e91-bfb4-670cd9583a18"}
+    {"location", "https://api-sandbox.dwolla.com/funding-sources/e8b4d511-805d-4e91-bfb4-670cd9583a18"}
   end
   def http_response_header(:transfer) do
-    {"Location", "https://api-sandbox.dwolla.com/transfers/494b6269-d909-e711-80ee-0aa34a9b2388"}
+    {"location", "https://api-sandbox.dwolla.com/transfers/494b6269-d909-e711-80ee-0aa34a9b2388"}
   end
   def http_response_header(:webhook) do
-    {"Location", "https://api-sandbox.dwolla.com/webhooks/9ece9660-aa34-41eb-80d7-0125d53b45e8/retries/5aa27a0f-cf99-418d-a3ee-67c0ff99a494"}
+    {"location", "https://api-sandbox.dwolla.com/webhooks/9ece9660-aa34-41eb-80d7-0125d53b45e8/retries/5aa27a0f-cf99-418d-a3ee-67c0ff99a494"}
   end
   def http_response_header(:webhook_subscription) do
-    {"Location", "https://api-sandbox.dwolla.com/webhook-subscriptions/d2b4f94a-e0bf-4ef0-9285-a08efe023a4e"}
+    {"location", "https://api-sandbox.dwolla.com/webhook-subscriptions/d2b4f94a-e0bf-4ef0-9285-a08efe023a4e"}
   end
 end
