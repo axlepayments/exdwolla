@@ -13,6 +13,22 @@ defmodule Dwolla.UtilsTest do
       assert body == payload
     end
 
+    test "handle_resp/2 handles lowercase location header" do
+      id = "494b6269-d909-e711-80ee-0aa34a9b2388"
+      headers = [{"location", "https://api-sandbox.dwolla.com/transfers/#{id}"}]
+      resp = success_resp(201, "", headers)
+
+      assert {:ok, %{id: ^id}} = Utils.handle_resp(resp, :any)
+    end
+
+    test "handle_resp/2 handles capitalized location header" do
+      id = "494b6269-d909-e711-80ee-0aa34a9b2388"
+      headers = [{"Location", "https://api-sandbox.dwolla.com/transfers/#{id}"}]
+      resp = success_resp(201, "", headers)
+
+      assert {:ok, %{id: ^id}} = Utils.handle_resp(resp, :any)
+    end
+
     test "to_snake_case/1 converts string keys to snake case" do
       params = %{
         "firstName" => "Steve",
@@ -70,7 +86,7 @@ defmodule Dwolla.UtilsTest do
     end
   end
 
-  defp success_resp(code, body) do
-    {:ok, %HTTPoison.Response{status_code: code, body: body}}
+  defp success_resp(code, body, headers \\ []) do
+    {:ok, %HTTPoison.Response{status_code: code, body: body, headers: headers}}
   end
 end
