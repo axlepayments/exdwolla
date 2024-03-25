@@ -375,7 +375,12 @@ defmodule Dwolla.Utils do
   end
 
   defp get_resource_from_headers(headers) do
-    headers |> Enum.find(fn {k, _} -> String.downcase(k) == "location" end)
+    headers
+    |> Enum.find(fn {k, _} -> String.downcase(k) == "location" end)
+    |> case do
+      {k, v} when is_binary(k) -> {String.downcase(k), v}
+      header -> header
+    end
   end
 
   defp extract_id_from_resource({"location", resource}) do
