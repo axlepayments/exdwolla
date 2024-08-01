@@ -313,7 +313,7 @@ defmodule Dwolla.Utils do
     |> Poison.Decode.transform(%{as: %Dwolla.Document{}})
   end
 
-  defp get_customer_verify_beneficial_ownership_from_body(%{"_links" => %{"verify-beneficial-ownership" => %{"href" => _}}}),
+  defp get_customer_verify_beneficial_ownership_from_body(%{"_links" => %{"verify-beneficial-owners" => %{"href" => _}}}),
     do: true
 
   defp get_customer_verify_beneficial_ownership_from_body(_),
